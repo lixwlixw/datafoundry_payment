@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	// "encoding/json"
+	//"encoding/json"
 	"net/http"
 	"net/url"
 
@@ -14,11 +14,12 @@ type CheckoutAgent struct {
 }
 
 type Checkout struct {
-	PlanId  string `json:"plan_id"`
-	Project string `json:"namespace,omitempty"`
-	Region  string `json:"region"` //need it?
-	OrderID string `json:"orderid,omitempty"`
-	DryTry  int    `json:"drytry,omitempty"`
+	PlanId  string                 `json:"plan_id"`
+	Project string                 `json:"namespace,omitempty"`
+	Region  string                 `json:"region"` //need it?
+	OrderID string                 `json:"orderid,omitempty"`
+	DryTry  int                    `json:"drytry,omitempty"`
+	Params  map[string]interface{} `json:"parameters,omitempty"`
 }
 
 type PurchasedOrder apiPurchaseOrder
