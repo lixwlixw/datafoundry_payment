@@ -14,6 +14,7 @@ const (
 	ErrCodePermissionDenied   = 14030
 	ErrCodeNotFound           = 1404
 	ErrCodePlanNotFound       = 14040
+	ErrCodeRegionNotFound     = 14041
 	ErrCodeMethodNotAllowed   = 1405
 	ErrCodeTimeout            = 1408
 	ErrCodeServiceUnavailable = 1503
@@ -31,6 +32,7 @@ var errText = map[int]string{
 	ErrCodePermissionDenied:   "Permission denied",
 	ErrCodeNotFound:           "Not found",
 	ErrCodePlanNotFound:       "No such plan",
+	ErrCodeRegionNotFound:     "Region not exist",
 	ErrCodeMethodNotAllowed:   "Method not allowed",
 	ErrCodeTimeout:            "Request timeout",
 	ErrCodeServiceUnavailable: "Service unavailable",

@@ -9,6 +9,7 @@ import (
 	"github.com/asiainfoLDP/datafoundry_payment/api/coupon"
 	"github.com/asiainfoLDP/datafoundry_payment/api/integration"
 	"github.com/asiainfoLDP/datafoundry_payment/api/market"
+	"github.com/asiainfoLDP/datafoundry_payment/api/openshift"
 	"github.com/asiainfoLDP/datafoundry_payment/api/recharge"
 	"github.com/julienschmidt/httprouter"
 )
@@ -16,6 +17,7 @@ import (
 const (
 	PAYMENT_API_PREFIX     = "/payment/v1"
 	INTEGRATION_API_PREFIX = "/integration/v1"
+	LDP_API_PREFIX         = "/lapi/v1"
 )
 
 func createRouter() *httprouter.Router {
@@ -42,6 +44,8 @@ func createRouter() *httprouter.Router {
 
 	router.GET(INTEGRATION_API_PREFIX+"/services", integration.ListDataServices)
 	router.POST(INTEGRATION_API_PREFIX+"/instance/:instance_id", integration.DataServiceInstance)
+
+	router.POST(LDP_API_PREFIX+"/orgs", openshift.CreateProject)
 
 	router.NotFound = &api.Mux{}
 

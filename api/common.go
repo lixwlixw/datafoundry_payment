@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	payment "github.com/asiainfoLDP/datafoundry_payment/pkg"
+	"github.com/asiainfoLDP/datafoundry_payment/pkg/openshift"
 	"github.com/zonesan/clog"
 )
 
@@ -66,6 +67,11 @@ func genRespJson(err error) *APIResponse {
 			resp.Code = e.Code
 			resp.Message = e.Message
 			resp.status = e.Response.StatusCode
+		} else if e, ok := err.(*openshift.StatusError); ok {
+			resp.Code = int(e.ErrStatus.Code)
+			resp.status = resp.Code
+			resp.Message = e.ErrStatus.Message
+
 		} else {
 			resp.Code = payment.ErrCodeBadRequest
 			resp.Message = err.Error()

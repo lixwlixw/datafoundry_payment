@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -62,7 +63,7 @@ func CreateOpenshiftClientFromUserToken(host, token string) *OpenshiftClient {
 	return oc
 }
 
-func CreateOpenshiftClient(name, host, username, password string, durPhase time.Duration) *OpenshiftClient {
+func NewOpenshiftClient(name, host, username, password string, durPhase time.Duration) *OpenshiftClient {
 	host = httpsAddr(host)
 	oc := &OpenshiftClient{
 		name: name,
@@ -82,19 +83,32 @@ func CreateOpenshiftClient(name, host, username, password string, durPhase time.
 	return oc
 }
 
-// for general user
-// the token must contains "Bearer "
-func (baseOC *OpenshiftClient) NewOpenshiftClient(token string) *OpenshiftClient {
+func NewOpenshiftTokenClient(host, bearerToken string) *OpenshiftClient {
+	host = httpsAddr(host)
 	oc := &OpenshiftClient{
-		host:    baseOC.host,
-		oapiUrl: baseOC.oapiUrl,
-		kapiUrl: baseOC.kapiUrl,
+		host:    host,
+		oapiUrl: host + "/oapi/v1",
+		kapiUrl: host + "/api/v1",
 	}
 
-	oc.setBearerToken(token)
+	oc.setBearerToken(bearerToken)
 
 	return oc
 }
+
+// // for general user
+// // the token must contains "Bearer "
+// func (baseOC *OpenshiftClient) NewOpenshiftClient(token string) *OpenshiftClient {
+// 	oc := &OpenshiftClient{
+// 		host:    baseOC.host,
+// 		oapiUrl: baseOC.oapiUrl,
+// 		kapiUrl: baseOC.kapiUrl,
+// 	}
+
+// 	oc.setBearerToken(token)
+
+// 	return oc
+// }
 
 func (oc *OpenshiftClient) BearerToken() string {
 	//return oc.bearerToken
@@ -108,19 +122,18 @@ func (oc *OpenshiftClient) setBearerToken(token string) {
 func (oc *OpenshiftClient) updateBearerToken(durPhase time.Duration) {
 	for {
 
-		println("Request Token from: ", oc.host)
+		// clog.Debugf("Request bearer token from: %v(%v) ", oc.name, oc.host)
 
 		token, err := RequestToken(oc.host, oc.username, oc.password)
 		if err != nil {
-			println("RequestToken error: ", err.Error())
+			clog.Error("RequestToken error, try in 15 seconds. error detail: ", err)
 
 			time.Sleep(15 * time.Second)
 		} else {
-			//clientConfig.BearerToken = token
-			//oc.bearerToken = "Bearer " + token
+
 			oc.setBearerToken("Bearer " + token)
 
-			println(oc.name, ", RequestToken token: ", token)
+			clog.Debugf("token[%v](%v): %v", oc.name, oc.host, token)
 
 			// durPhase is to avoid mulitple OCs updating tokens at the same time
 			time.Sleep(3*time.Hour + durPhase)
@@ -304,7 +317,48 @@ func NewOpenshiftREST(client *OpenshiftClient) *OpenshiftREST {
 	return &OpenshiftREST{oc: client}
 }
 
-func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, into interface{}) *OpenshiftREST {
+// func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, into interface{}) *OpenshiftREST {
+// 	if osr.Err != nil {
+// 		return osr
+// 	}
+
+// 	var body []byte
+// 	if bodyParams != nil {
+// 		body, osr.Err = json.Marshal(bodyParams)
+// 		if osr.Err != nil {
+// 			return osr
+// 		}
+// 	}
+
+// 	//res, osr.Err := oc.request(method, url, body, GeneralRequestTimeout) // non-name error
+// 	res, err := osr.oc.request(method, url, body, GeneralRequestTimeout)
+
+// 	if err != nil {
+// 		osr.Err = err
+// 		return osr
+// 	}
+// 	defer res.Body.Close()
+
+// 	osr.StatusCode = res.StatusCode
+
+// 	var data []byte
+// 	data, osr.Err = ioutil.ReadAll(res.Body)
+// 	if osr.Err != nil {
+// 		return osr
+// 	}
+
+// 	if res.StatusCode < 200 || res.StatusCode >= 400 {
+// 		osr.Err = errors.New(string(data))
+// 	} else {
+// 		if into != nil {
+// 			osr.Err = json.Unmarshal(data, into)
+// 		}
+// 	}
+
+// 	return osr
+// }
+
+func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, v interface{}) *OpenshiftREST {
 	if osr.Err != nil {
 		return osr
 	}
@@ -318,27 +372,41 @@ func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, 
 	}
 
 	//res, osr.Err := oc.request(method, url, body, GeneralRequestTimeout) // non-name error
-	res, err := osr.oc.request(method, url, body, GeneralRequestTimeout)
+	resp, err := osr.oc.request(method, url, body, GeneralRequestTimeout)
 
 	if err != nil {
 		osr.Err = err
 		return osr
 	}
-	defer res.Body.Close()
 
-	osr.StatusCode = res.StatusCode
+	defer func() {
+		// Drain up to 512 bytes and close the body to let the Transport reuse the connection
+		io.CopyN(ioutil.Discard, resp.Body, 512)
+		resp.Body.Close()
+	}()
 
-	var data []byte
-	data, osr.Err = ioutil.ReadAll(res.Body)
-	if osr.Err != nil {
+	////////////////
+	defer resp.Body.Close()
+
+	osr.StatusCode = resp.StatusCode
+
+	err = CheckApiStatus(resp)
+	if err != nil {
+		// even though there was an error, we still return the response
+		// in case the caller wants to inspect it further
+		osr.Err = err
 		return osr
 	}
 
-	if res.StatusCode < 200 || res.StatusCode >= 400 {
-		osr.Err = errors.New(string(data))
-	} else {
-		if into != nil {
-			osr.Err = json.Unmarshal(data, into)
+	if v != nil {
+		if w, ok := v.(io.Writer); ok {
+			io.Copy(w, resp.Body)
+		} else {
+			err = json.NewDecoder(resp.Body).Decode(v)
+			if err == io.EOF {
+				err = nil // ignore EOF errors caused by empty response body
+			}
+			osr.Err = err
 		}
 	}
 
