@@ -40,6 +40,7 @@ type apiPlan struct {
 type apiPurchaseOrder struct {
 	Money string `json:"money"`
 	Order struct {
+		Id              int64  `json:"id,omitempty"`
 		Order_id        string `json:"order_id,omitempty"`
 		Account_id      string `json:"namespace,omitempty"` // accountId
 		Region          string `json:"region,omitempty"`
