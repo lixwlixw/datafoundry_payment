@@ -2,6 +2,7 @@ package pkg
 
 import (
 	//"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -47,46 +48,6 @@ func (agent *CheckoutAgent) ListOrders(r *http.Request) (*[]PurchasedOrder, erro
 
 	return orders, nil
 
-	// if r.URL.RawQuery != "" {
-	// 	urlStr += "?" + r.URL.RawQuery
-	// }
-
-	// rel, err := url.Parse(urlStr)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// u := agent.BaseURL.ResolveReference(rel)
-
-	// token, err := getToken(r)
-	// if err != nil {
-	// 	clog.Error(err)
-	// 	return nil, err
-	// }
-
-	// req, err := agent.NewRequest("GET", u.String(), nil)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// req.Header.Set("Authorization", token)
-
-	// response := new(RemoteListResponse)
-	// if err := agent.Do(req, response); err != nil {
-	// 	clog.Error(err)
-	// 	return nil, err
-	// }
-
-	// orders := []PurchasedOrder{}
-
-	// if err := json.Unmarshal([]byte(response.Data), &orders); err != nil {
-	// 	clog.Error(err)
-	// 	return nil, err
-	// } else {
-	// 	clog.Infof("%v order(s) listed.", len(orders))
-	// 	return &orders, nil
-	// }
-
 }
 
 func (agent *CheckoutAgent) Create(r *http.Request, checkout *Checkout) (*PurchasedOrder, error) {
@@ -99,6 +60,26 @@ func (agent *CheckoutAgent) Create(r *http.Request, checkout *Checkout) (*Purcha
 	}
 
 	return order, nil
+}
+
+func (agent *CheckoutAgent) Unsubscribe(r *http.Request, orderid string) (*UndefinedResp, error) {
+	urlStr := fmt.Sprintf("/usageapi/v1/orders/%v", orderid)
+
+	r.ParseForm()
+
+	req := make(map[string]string)
+
+	req["action"] = r.FormValue("action")
+	req["namespace"] = r.FormValue("namespace")
+
+	resp := new(UndefinedResp)
+
+	if err := doRequest(agent, r, "PUT", urlStr, req, resp); err != nil {
+		clog.Error(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (agent *CheckoutAgent) Url() *url.URL {
