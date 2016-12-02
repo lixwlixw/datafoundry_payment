@@ -35,6 +35,7 @@ func createRouter() *httprouter.Router {
 	router.GET(PAYMENT_API_PREFIX+"/coupon/:serial", coupon.Coupon)
 	router.POST(PAYMENT_API_PREFIX+"/redeem", coupon.Redeem)
 	router.GET(PAYMENT_API_PREFIX+"/orders", checkout.Order)
+	router.DELETE(PAYMENT_API_PREFIX+"/orders/:orderid", checkout.Unsubscribe)
 	router.POST(PAYMENT_API_PREFIX+"/notification", recharge.Notification)
 	router.GET(PAYMENT_API_PREFIX+"/regions", market.ListRegion)
 

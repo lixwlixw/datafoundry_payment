@@ -130,3 +130,5 @@ type apiDataItemAttr struct {
 	Example string `json:"example"`
 	Order   int    `json:"orderId"`
 }
+
+type UndefinedResp map[string]interface{}
