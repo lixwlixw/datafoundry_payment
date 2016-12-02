@@ -61,11 +61,13 @@ func doRequest(agent AgentInterface, r *http.Request, method, urlStr string, req
 		return err
 	}
 
-	clog.Debug(string(response.Data))
+	clog.Debugf("%#v", response)
 
-	if err := json.Unmarshal([]byte(response.Data), respBody); err != nil {
-		clog.Error(err)
-		return err
+	if response.Data != nil {
+		if err := json.Unmarshal([]byte(response.Data), respBody); err != nil {
+			clog.Error(err)
+			return err
+		}
 	}
 
 	return nil
@@ -105,11 +107,13 @@ func doRequestList(agent AgentInterface, r *http.Request, method, urlStr string,
 		return err
 	}
 
-	clog.Debug(string(response.Data))
+	clog.Debugf("%#v", response)
 
-	if err := json.Unmarshal([]byte(response.Data), respListBody); err != nil {
-		clog.Error(err)
-		return err
+	if response.Data != nil {
+		if err := json.Unmarshal([]byte(response.Data), respListBody); err != nil {
+			clog.Error(err)
+			return err
+		}
 	}
 
 	return nil
