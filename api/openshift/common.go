@@ -178,6 +178,10 @@ func NewAdminClient(r *http.Request) (*openshift.OClient, error) {
 
 	clog.Debug(user)
 
+	if adminClients[region] == nil || adminClients[region].BearerToken() == "" {
+		return nil, pkg.ErrorNew(pkg.ErrCodeAdminNotPresented)
+	}
+
 	client := openshift.NewAdminOClient(adminClients[region])
 
 	return client, nil
