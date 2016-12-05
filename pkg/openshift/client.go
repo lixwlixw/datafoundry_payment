@@ -66,6 +66,7 @@ func (oc *OClient) ListRoles(r *http.Request, project string) (*rolebindingapi.R
 					role.RoleRef.Name == "edit" {
 					//clog.Debugf("%#v", role)
 					rolesResult.Items = append(rolesResult.Items, role)
+					break
 				}
 			}
 		}
