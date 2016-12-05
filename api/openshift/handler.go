@@ -19,7 +19,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		return
 	}
 
-	oc, err := NewOClient(r)
+	oc, err := NewClient(r, true)
 
 	if err != nil {
 		clog.Error("OpenshiftRestClient", err)
@@ -31,6 +31,27 @@ func CreateProject(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		api.RespError(w, err)
 	} else {
 		api.RespOK(w, proj)
+	}
+
+}
+
+func ListMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	clog.Info("from", r.RemoteAddr, r.Method, r.URL.RequestURI(), r.Proto)
+
+	project := ps.ByName("project")
+
+	oc, err := NewAdminClient(r)
+
+	if err != nil {
+		clog.Error("NewAdminOClient", err)
+		api.RespError(w, err)
+		return
+	}
+
+	if roles, err := oc.ListRoles(r, project); err != nil {
+		api.RespError(w, err)
+	} else {
+		api.RespOK(w, roles)
 	}
 
 }

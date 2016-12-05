@@ -47,6 +47,7 @@ func createRouter() *httprouter.Router {
 	router.POST(INTEGRATION_API_PREFIX+"/instance/:instance_id", integration.DataServiceInstance)
 
 	router.POST(LDP_API_PREFIX+"/orgs", openshift.CreateProject)
+	router.GET(LDP_API_PREFIX+"/orgs/:project/roles", openshift.ListMembers)
 
 	router.NotFound = &api.Mux{}
 
