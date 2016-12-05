@@ -64,7 +64,7 @@ func (oc *OClient) ListRoles(r *http.Request, project string) (*rolebindingapi.R
 			if subject.Kind == "User" {
 				if role.RoleRef.Name == "view" || role.RoleRef.Name == "admin" ||
 					role.RoleRef.Name == "edit" {
-					clog.Warnf("%#v", role)
+					//clog.Debugf("%#v", role)
 					rolesResult.Items = append(rolesResult.Items, role)
 				}
 			}

@@ -176,7 +176,7 @@ func NewAdminClient(r *http.Request) (*openshift.OClient, error) {
 		return nil, err
 	}
 
-	clog.Debug(user)
+	clog.Debug(user, "is reuqesting admin permission.")
 
 	if adminClients[region] == nil || adminClients[region].BearerToken() == "" {
 		return nil, pkg.ErrorNew(pkg.ErrCodeAdminNotPresented)

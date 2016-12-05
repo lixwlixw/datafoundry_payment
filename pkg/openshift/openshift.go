@@ -410,7 +410,7 @@ func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, 
 			if err == io.EOF {
 				err = nil // ignore EOF errors caused by empty response body
 			}
-			clog.Debugf("%#v", v)
+			clog.Tracef("%#v", v)
 			osr.Err = err
 		}
 	}

@@ -29,8 +29,8 @@ const (
 	LOG_LEVEL_ERROR
 	LOG_LEVEL_WARN
 	LOG_LEVEL_INFO
-	LOG_LEVEL_TRACE
 	LOG_LEVEL_DEBUG
+	LOG_LEVEL_TRACE
 )
 
 var logEnv = map[string]int{
@@ -39,8 +39,8 @@ var logEnv = map[string]int{
 	"error": LOG_LEVEL_ERROR,
 	"warn":  LOG_LEVEL_WARN,
 	"info":  LOG_LEVEL_INFO,
-	"trace": LOG_LEVEL_TRACE,
 	"debug": LOG_LEVEL_DEBUG,
+	"trace": LOG_LEVEL_TRACE,
 }
 
 var logLevel = LOG_LEVEL_DEBUG
