@@ -69,6 +69,13 @@ func genRespJson(err error) *APIResponse {
 			resp.status = e.Response.StatusCode
 		} else if e, ok := err.(*openshift.StatusError); ok {
 			resp.Code = int(e.ErrStatus.Code)
+
+			// frontend can't handle 403, he will panic...
+			{
+				if resp.Code == http.StatusForbidden {
+					resp.Code = http.StatusBadRequest
+				}
+			}
 			resp.status = resp.Code
 			resp.Message = e.ErrStatus.Message
 

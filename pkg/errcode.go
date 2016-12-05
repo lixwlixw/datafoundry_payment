@@ -17,6 +17,7 @@ const (
 	ErrCodeRegionNotFound     = 14041
 	ErrCodeMethodNotAllowed   = 1405
 	ErrCodeTimeout            = 1408
+	ErrCodeAdminNotPresented  = 15000
 	ErrCodeServiceUnavailable = 1503
 
 	ErrCodeUnknownError = 140010
@@ -35,6 +36,7 @@ var errText = map[int]string{
 	ErrCodeRegionNotFound:     "Region not exist",
 	ErrCodeMethodNotAllowed:   "Method not allowed",
 	ErrCodeTimeout:            "Request timeout",
+	ErrCodeAdminNotPresented:  "Admin not presented",
 	ErrCodeServiceUnavailable: "Service unavailable",
 
 	ErrCodeUnknownError: "Unknown error",

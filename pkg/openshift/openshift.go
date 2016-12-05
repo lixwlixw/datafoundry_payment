@@ -280,7 +280,7 @@ func (oc *OpenshiftClient) KWatch(uri string) (<-chan WatchStatus, chan<- struct
 	return oc.doWatch(oc.kapiUrl + "/watch" + uri)
 }
 
-const GeneralRequestTimeout = time.Duration(30) * time.Second
+const GeneralRequestTimeout = time.Duration(60) * time.Second
 
 /*
 func (oc *OpenshiftClient) doRequest (method, url string, body []byte) ([]byte, error) {
@@ -359,6 +359,9 @@ func NewOpenshiftREST(client *OpenshiftClient) *OpenshiftREST {
 // }
 
 func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, v interface{}) *OpenshiftREST {
+
+	clog.Info(method, url, bodyParams)
+
 	if osr.Err != nil {
 		return osr
 	}
@@ -395,6 +398,7 @@ func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, 
 		// even though there was an error, we still return the response
 		// in case the caller wants to inspect it further
 		osr.Err = err
+		clog.Error(err)
 		return osr
 	}
 
@@ -406,6 +410,7 @@ func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, 
 			if err == io.EOF {
 				err = nil // ignore EOF errors caused by empty response body
 			}
+			clog.Tracef("%#v", v)
 			osr.Err = err
 		}
 	}

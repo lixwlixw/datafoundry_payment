@@ -123,7 +123,7 @@ func RegionHostname(region string) string {
 	return regions[region]
 }
 
-func NewOClient(r *http.Request) (*openshift.OClient, error) {
+func NewClient(r *http.Request, validation bool) (*openshift.OClient, error) {
 	r.ParseForm()
 
 	region := r.FormValue("region")
@@ -131,6 +131,37 @@ func NewOClient(r *http.Request) (*openshift.OClient, error) {
 	token := r.Header.Get("Authorization")
 
 	clog.Debugf("[%v] [%v] [%v]", region, host, token)
+
+	if token == "" {
+		return nil, pkg.ErrorNew(pkg.ErrCodeUnauthorized)
+	}
+
+	if host == "" {
+		return nil, pkg.ErrorNew(pkg.ErrCodeRegionNotFound)
+	}
+
+	user := ""
+	var err error = nil
+	if validation {
+		user, err = getDFUserame(region, token)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	client := openshift.NewOClient(host, token, user)
+	return client, nil
+}
+
+func NewAdminClient(r *http.Request) (*openshift.OClient, error) {
+	r.ParseForm()
+
+	region := r.FormValue("region")
+	host := RegionHostname(region)
+	token := r.Header.Get("Authorization")
+
+	clog.Debugf("[%v] [%v] [%v]", region, host, token)
+
 	if token == "" {
 		return nil, pkg.ErrorNew(pkg.ErrCodeUnauthorized)
 	}
@@ -145,6 +176,13 @@ func NewOClient(r *http.Request) (*openshift.OClient, error) {
 		return nil, err
 	}
 
-	client := openshift.NewOClient(host, token, user)
+	clog.Debug(user, "is reuqesting admin permission.")
+
+	if adminClients[region] == nil || adminClients[region].BearerToken() == "" {
+		return nil, pkg.ErrorNew(pkg.ErrCodeAdminNotPresented)
+	}
+
+	client := openshift.NewAdminOClient(adminClients[region])
+
 	return client, nil
 }
