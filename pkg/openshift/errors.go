@@ -31,6 +31,15 @@ func CheckApiStatus(r *http.Response) error {
 	if c := r.StatusCode; 200 <= c && c <= 299 {
 		return nil
 	}
+
+	// openshift returns 401 with a plain text but not ErrStatus json, so we hacked this response text.
+	if r.StatusCode == http.StatusUnauthorized {
+		errorResponse := &StatusError{}
+		errorResponse.ErrStatus.Code = http.StatusUnauthorized
+		errorResponse.ErrStatus.Message = http.StatusText(http.StatusUnauthorized)
+		return errorResponse
+	}
+
 	errorResponse := &StatusError{}
 	data, err := ioutil.ReadAll(r.Body)
 	if err == nil && data != nil {
