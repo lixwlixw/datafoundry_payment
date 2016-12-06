@@ -46,5 +46,6 @@ func CheckApiStatus(r *http.Response) error {
 		//clog.Errorf("%s", data)
 		json.Unmarshal(data, &errorResponse.ErrStatus)
 	}
+
 	return errorResponse
 }

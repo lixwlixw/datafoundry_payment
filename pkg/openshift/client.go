@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/asiainfoLDP/datafoundry_payment/pkg"
 	projectapi "github.com/openshift/origin/pkg/project/api/v1"
 	rolebindingapi "github.com/openshift/origin/pkg/rolebinding/api/v1"
 	"github.com/zonesan/clog"
@@ -84,6 +85,10 @@ func (oc *OClient) ListRoles(r *http.Request, project string) (*rolebindingapi.R
 
 func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*rolebindingapi.RoleBinding, error) {
 
+	if name == "" {
+		return nil, pkg.ErrorNew(pkg.ErrCodeInvalidParam)
+	}
+
 	roles, err := oc.ListRoles(r, project)
 	if err != nil {
 		clog.Error(err)
@@ -102,11 +107,15 @@ func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*
 		role.Name = roleRef
 	}
 
+	if exist := findUserInRoles(roles, name); exist {
+		return nil, pkg.ErrorNew(pkg.ErrCodeConflict)
+	}
+
 	subject := kapi.ObjectReference{Kind: "User", Name: name}
 	role.Subjects = append(role.Subjects, subject)
 	role.UserNames = append(role.UserNames, name)
 
-	uri := fmt.Sprintf("/projects/%v/rolebindings", project)
+	uri := fmt.Sprintf("/namespaces/%v/rolebindings", project)
 
 	if create {
 		oc.client.OPost(uri, role, role)
@@ -129,4 +138,23 @@ func findRole(roles *rolebindingapi.RoleBindingList, roleRef string) *rolebindin
 		}
 	}
 	return nil
+}
+
+func findUserInRole(users []string, user string) bool {
+	for _, v := range users {
+		if user == v {
+			return true
+		}
+	}
+	return false
+}
+
+func findUserInRoles(roles *rolebindingapi.RoleBindingList, username string) bool {
+	for _, role := range roles.Items {
+		if exist := findUserInRole(role.UserNames, username); exist {
+			clog.Warnf("duplicate user: %v, role: %v", username, role.RoleRef.Name)
+			return exist
+		}
+	}
+	return false
 }
