@@ -105,6 +105,7 @@ func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*
 		create = true
 		role = new(rolebindingapi.RoleBinding)
 		role.Name = roleRef
+		role.RoleRef.Name = roleRef
 	}
 
 	if exist := findUserInRoles(roles, name); exist {
