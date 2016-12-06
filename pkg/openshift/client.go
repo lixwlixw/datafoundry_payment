@@ -28,19 +28,21 @@ func NewAdminOClient(adminClient *OpenshiftClient) *OClient {
 	return client
 }
 
-func (oc *OClient) CreateProject(r *http.Request, name string) (*projectapi.ProjectRequest, error) {
+func (oc *OClient) CreateProject(r *http.Request, name string) (*projectapi.Project, error) {
 
 	uri := "/projectrequests"
 
-	proj := new(projectapi.ProjectRequest)
+	projRequest := new(projectapi.ProjectRequest)
 	{
-		proj.DisplayName = name
-		proj.Name = oc.user + "-org-" + genRandomName(8)
-		proj.Annotations = make(map[string]string)
-		proj.Annotations["datafoundry.io/requester"] = oc.user
+		projRequest.DisplayName = name
+		projRequest.Name = oc.user + "-org-" + genRandomName(8)
+		projRequest.Annotations = make(map[string]string)
+		projRequest.Annotations["datafoundry.io/requester"] = oc.user
 	}
 
-	oc.client.OPost(uri, proj, proj)
+	proj := new(projectapi.Project)
+
+	oc.client.OPost(uri, projRequest, proj)
 	if oc.client.Err != nil {
 		clog.Error(oc.client.Err)
 		return nil, oc.client.Err
@@ -72,4 +74,12 @@ func (oc *OClient) ListRoles(r *http.Request, project string) (*rolebindingapi.R
 		}
 	}
 	return rolesResult, nil
+}
+
+func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) error {
+	return nil
+}
+
+func (oc *OClient) RoleRemove(r *http.Request, project, name string) error {
+	return nil
 }
