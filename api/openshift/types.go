@@ -16,8 +16,8 @@ type OrgnazitionList struct {
 }
 
 type OrgMember struct {
-	MemberName   string            `json:"member_name"`
-	IsAdmin      bool              `json:"privileged"`
+	Name         string            `json:"member_name"`
+	IsAdmin      bool              `json:"admin"`
 	PrivilegedBy string            `json:"privileged_by"`
 	JoinedAt     string            `json:"joined_at"`
 	Status       MemberStatusPhase `json:"status"`

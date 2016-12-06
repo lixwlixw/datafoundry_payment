@@ -7,6 +7,7 @@ import (
 const (
 	ErrCodeOK                 = 1200
 	ErrCodeBadRequest         = 1400
+	ErrCodeInvalidParam       = 14001
 	ErrCodeActionNotSupport   = 14003
 	ErrCodeInvalidToken       = 14004
 	ErrCodeUnauthorized       = 1401
@@ -17,6 +18,7 @@ const (
 	ErrCodeRegionNotFound     = 14041
 	ErrCodeMethodNotAllowed   = 1405
 	ErrCodeTimeout            = 1408
+	ErrCodeConflict           = 1409
 	ErrCodeAdminNotPresented  = 15000
 	ErrCodeServiceUnavailable = 1503
 
@@ -26,6 +28,7 @@ const (
 var errText = map[int]string{
 	ErrCodeOK:                 "OK",
 	ErrCodeBadRequest:         "Bad request",
+	ErrCodeInvalidParam:       "Invalid parameter",
 	ErrCodeActionNotSupport:   "Not supported action",
 	ErrCodeInvalidToken:       "Invalid token",
 	ErrCodeUnauthorized:       "Unauthorized",
@@ -36,6 +39,7 @@ var errText = map[int]string{
 	ErrCodeRegionNotFound:     "Region not exist",
 	ErrCodeMethodNotAllowed:   "Method not allowed",
 	ErrCodeTimeout:            "Request timeout",
+	ErrCodeConflict:           "Already exist",
 	ErrCodeAdminNotPresented:  "Admin not presented",
 	ErrCodeServiceUnavailable: "Service unavailable",
 

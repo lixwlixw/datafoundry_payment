@@ -360,7 +360,7 @@ func NewOpenshiftREST(client *OpenshiftClient) *OpenshiftREST {
 
 func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, v interface{}) *OpenshiftREST {
 
-	clog.Info(method, url, bodyParams)
+	clog.Infof("%v %v %#v", method, url, bodyParams)
 
 	if osr.Err != nil {
 		return osr
