@@ -153,8 +153,12 @@ func NewClient(r *http.Request, validation bool) (*openshift.OClient, error) {
 	return client, nil
 }
 
-func NewAdminClient(r *http.Request) (*openshift.OClient, error) {
+func NewAdminClient(r *http.Request, project string) (*openshift.OClient, error) {
 	r.ParseForm()
+
+	if project == "" {
+		return nil, pkg.ErrorNew(pkg.ErrCodeInvalidParam)
+	}
 
 	region := r.FormValue("region")
 	host := RegionHostname(region)
@@ -173,6 +177,20 @@ func NewAdminClient(r *http.Request) (*openshift.OClient, error) {
 	user, err := getDFUserame(region, token)
 
 	if err != nil {
+		return nil, err
+	}
+
+	if err := func() error {
+		oc, err := NewClient(r, false)
+		if err != nil {
+			return err
+		}
+		_, err = oc.GetProject(r, project)
+
+		return err
+
+	}(); err != nil {
+		clog.Error(err)
 		return nil, err
 	}
 

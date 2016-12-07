@@ -92,6 +92,21 @@ func (oc *OClient) ListRoles(r *http.Request, project string) (*rolebindingapi.R
 	return rolesResult, nil
 }
 
+func (oc *OClient) GetProject(r *http.Request, project string) (*projectapi.Project, error) {
+	uri := fmt.Sprintf("/projects/%v/", project)
+
+	proj := new(projectapi.Project)
+
+	oc.client.OGet(uri, proj)
+
+	if oc.client.Err != nil {
+		clog.Error(oc.client.Err)
+		return nil, oc.client.Err
+	}
+
+	return proj, nil
+}
+
 func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*rolebindingapi.RoleBinding, error) {
 
 	if name == "" || project == "" {
