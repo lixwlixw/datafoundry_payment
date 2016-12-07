@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
+	apierrors "github.com/asiainfoLDP/datafoundry_payment/pkg/errors"
 	"github.com/zonesan/clog"
 )
 
@@ -38,7 +39,7 @@ func (agent *CouponAgent) Get(r *http.Request, code string) (*Coupon, error) {
 
 func (agent *CouponAgent) Redeem(r *http.Request, redeem *Redeem) (*Coupon, error) {
 	if redeem.Serial == "" || redeem.Code == "" {
-		return nil, ErrorNew(ErrCodeBadRequest)
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeBadRequest)
 	}
 
 	urlStr := fmt.Sprintf("/charge/v1/coupons/use/%s", redeem.Serial)

@@ -5,7 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	payment "github.com/asiainfoLDP/datafoundry_payment/pkg"
+	"github.com/asiainfoLDP/datafoundry_payment/pkg"
+	apierrors "github.com/asiainfoLDP/datafoundry_payment/pkg/errors"
+	"github.com/asiainfoLDP/datafoundry_payment/pkg/openshift"
 	"github.com/zonesan/clog"
 )
 
@@ -54,20 +56,32 @@ func genRespJson(err error) *APIResponse {
 	resp := new(APIResponse)
 
 	if err == nil {
-		resp.Code = payment.ErrCodeOK
+		resp.Code = apierrors.ErrCodeOK
 		resp.status = http.StatusOK
 	} else {
-		if e, ok := err.(*payment.ErrorMessage); ok {
+		if e, ok := err.(*apierrors.ErrorMessage); ok {
 			resp.Code = e.Code
 			resp.status = trickCode2Status(resp.Code) //http.StatusBadRequest
-			resp.Message = payment.ErrText(resp.Code)
-		} else if e, ok := err.(*payment.ErrorResponse); ok {
+			resp.Message = apierrors.ErrText(resp.Code)
+		} else if e, ok := err.(*pkg.ErrorResponse); ok {
 			//TODO
 			resp.Code = e.Code
 			resp.Message = e.Message
 			resp.status = e.Response.StatusCode
+		} else if e, ok := err.(*openshift.StatusError); ok {
+			resp.Code = int(e.ErrStatus.Code)
+
+			// frontend can't handle 403, he will panic...
+			{
+				if resp.Code == http.StatusForbidden {
+					resp.Code = http.StatusBadRequest
+				}
+			}
+			resp.status = resp.Code
+			resp.Message = e.ErrStatus.Message
+
 		} else {
-			resp.Code = payment.ErrCodeBadRequest
+			resp.Code = apierrors.ErrCodeBadRequest
 			resp.Message = err.Error()
 			resp.status = trickCode2Status(resp.Code) //http.StatusBadRequest
 		}

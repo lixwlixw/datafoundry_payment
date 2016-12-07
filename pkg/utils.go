@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	apierrors "github.com/asiainfoLDP/datafoundry_payment/pkg/errors"
 	"github.com/zonesan/clog"
 )
 
@@ -16,7 +17,7 @@ func getToken(r *http.Request) (string, error) {
 	token := r.Header.Get("Authorization")
 
 	if token == "" {
-		err := ErrorNew(ErrCodeUnauthorized)
+		err := apierrors.ErrorNew(apierrors.ErrCodeUnauthorized)
 		return "", err
 	}
 	return token, nil
@@ -61,11 +62,13 @@ func doRequest(agent AgentInterface, r *http.Request, method, urlStr string, req
 		return err
 	}
 
-	clog.Debug(string(response.Data))
+	clog.Debugf(string(response.Data))
 
-	if err := json.Unmarshal([]byte(response.Data), respBody); err != nil {
-		clog.Error(err)
-		return err
+	if response.Data != nil {
+		if err := json.Unmarshal([]byte(response.Data), respBody); err != nil {
+			clog.Error(err)
+			return err
+		}
 	}
 
 	return nil
@@ -105,11 +108,13 @@ func doRequestList(agent AgentInterface, r *http.Request, method, urlStr string,
 		return err
 	}
 
-	clog.Debug(string(response.Data))
+	clog.Debugf(string(response.Data))
 
-	if err := json.Unmarshal([]byte(response.Data), respListBody); err != nil {
-		clog.Error(err)
-		return err
+	if response.Data != nil {
+		if err := json.Unmarshal([]byte(response.Data), respListBody); err != nil {
+			clog.Error(err)
+			return err
+		}
 	}
 
 	return nil

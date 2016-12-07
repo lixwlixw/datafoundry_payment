@@ -46,3 +46,19 @@ func Order(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 	//http.Redirect(w, r, "http://www.google.com", http.StatusMovedPermanently)
 }
+
+func Unsubscribe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	clog.Info("from", r.RemoteAddr, r.Method, r.URL.RequestURI(), r.Proto)
+
+	orderid := ps.ByName("orderid")
+
+	agent := api.Agent()
+	result, err := agent.Checkout.Unsubscribe(r, orderid)
+
+	if err != nil {
+		api.RespError(w, err)
+	} else {
+		api.RespOK(w, result)
+	}
+	//http.Redirect(w, r, "http://www.google.com", http.StatusMovedPermanently)
+}
