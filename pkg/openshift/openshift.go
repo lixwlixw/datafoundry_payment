@@ -360,7 +360,7 @@ func NewOpenshiftREST(client *OpenshiftClient) *OpenshiftREST {
 
 func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, v interface{}) *OpenshiftREST {
 
-	clog.Infof("%v %v %#v", method, url, bodyParams)
+	clog.Debugf("%v %v %#v", method, url, bodyParams)
 
 	if osr.Err != nil {
 		return osr
@@ -398,7 +398,7 @@ func (osr *OpenshiftREST) doRequest(method, url string, bodyParams interface{}, 
 		// even though there was an error, we still return the response
 		// in case the caller wants to inspect it further
 		osr.Err = err
-		clog.Error(err)
+		clog.Error(err, osr.StatusCode)
 		return osr
 	}
 

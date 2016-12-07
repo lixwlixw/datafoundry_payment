@@ -84,3 +84,32 @@ func InviteMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 }
+
+func RemoveMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	clog.Info("from", r.RemoteAddr, r.Method, r.URL.RequestURI(), r.Proto)
+
+	member := new(OrgMember)
+
+	if err := api.ParseRequestBody(r, member); err != nil {
+		clog.Error("read request body error.", err)
+		api.RespError(w, err)
+		return
+	}
+
+	project := ps.ByName("project")
+
+	oc, err := NewClient(r, true)
+
+	if err != nil {
+		clog.Error("NewClient", err)
+		api.RespError(w, err)
+		return
+	}
+
+	if err := oc.RoleRemove(r, project, member.Name); err != nil {
+		api.RespError(w, err)
+	} else {
+		api.RespOK(w, nil)
+	}
+
+}
