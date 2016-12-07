@@ -85,38 +85,43 @@ func (oc *OClient) ListRoles(r *http.Request, project string) (*rolebindingapi.R
 
 func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*rolebindingapi.RoleBinding, error) {
 
-	if name == "" {
+	if name == "" || project == "" {
 		return nil, pkg.ErrorNew(pkg.ErrCodeInvalidParam)
 	}
 
-	roles, err := oc.ListRoles(r, project)
+	uri := fmt.Sprintf("/namespaces/%v/rolebindings", project)
+
+	roleList, err := oc.ListRoles(r, project)
 	if err != nil {
 		clog.Error(err)
 		return nil, err
 	}
+
+	if exist := findUserInRoles(roleList, name); exist != nil {
+		clog.Warnf("duplicate user: %v, role: %v, project: %v", name, exist.RoleRef.Name, project)
+		return nil, pkg.ErrorNew(pkg.ErrCodeConflict)
+	}
+
 	roleRef := "edit"
 	if admin {
 		roleRef = "admin"
 	}
-	role := findRole(roles, roleRef)
+
+	role := findRole(roleList, roleRef)
 	create := false
 
 	if role == nil { //post else put
+		clog.Infof("role '%v' not exist in project '%v', will be created.", roleRef, project)
+
 		create = true
 		role = new(rolebindingapi.RoleBinding)
 		role.Name = roleRef
 		role.RoleRef.Name = roleRef
 	}
 
-	if exist := findUserInRoles(roles, name); exist {
-		return nil, pkg.ErrorNew(pkg.ErrCodeConflict)
-	}
-
 	subject := kapi.ObjectReference{Kind: "User", Name: name}
 	role.Subjects = append(role.Subjects, subject)
 	role.UserNames = append(role.UserNames, name)
-
-	uri := fmt.Sprintf("/namespaces/%v/rolebindings", project)
 
 	if create {
 		oc.client.OPost(uri, role, role)
@@ -129,7 +134,37 @@ func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*
 }
 
 func (oc *OClient) RoleRemove(r *http.Request, project, name string) error {
-	return nil
+	if name == "" || project == "" {
+		return pkg.ErrorNew(pkg.ErrCodeInvalidParam)
+	}
+
+	if name == oc.user {
+		return pkg.ErrorNew(pkg.ErrCodeActionNotSupport)
+	}
+
+	uri := fmt.Sprintf("/namespaces/%v/rolebindings", project)
+
+	roleList, err := oc.ListRoles(r, project)
+	if err != nil {
+		clog.Error(err)
+		return err
+	}
+
+	role := findUserInRoles(roleList, name)
+	if role == nil {
+		clog.Errorf("can't find user '%v' in project '%v'", name, project)
+		return pkg.ErrorNew(pkg.ErrCodeUserNotFound)
+	} else {
+		role = removeUserInRole(role, name)
+		uri += "/" + role.Name
+		oc.client.OPut(uri, role, role)
+	}
+
+	if oc.client.Err != nil {
+		clog.Error(oc.client.Err)
+	}
+
+	return oc.client.Err
 }
 
 func findRole(roles *rolebindingapi.RoleBindingList, roleRef string) *rolebindingapi.RoleBinding {
@@ -141,21 +176,40 @@ func findRole(roles *rolebindingapi.RoleBindingList, roleRef string) *rolebindin
 	return nil
 }
 
-func findUserInRole(users []string, user string) bool {
-	for _, v := range users {
-		if user == v {
-			return true
+// func findUserInRole(users []string, user string) bool {
+// 	for _, v := range users {
+// 		if user == v {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+func findUserInRoles(roles *rolebindingapi.RoleBindingList, username string) *rolebindingapi.RoleBinding {
+	for _, role := range roles.Items {
+		// if ok := findUserInRole(role.UserNames, username); ok {
+		// 	return &role
+		// }
+		for _, v := range role.UserNames {
+			if username == v {
+				return &role
+			}
 		}
 	}
-	return false
+	return nil
 }
 
-func findUserInRoles(roles *rolebindingapi.RoleBindingList, username string) bool {
-	for _, role := range roles.Items {
-		if exist := findUserInRole(role.UserNames, username); exist {
-			clog.Warnf("duplicate user: %v, role: %v", username, role.RoleRef.Name)
-			return exist
+func removeUserInRole(role *rolebindingapi.RoleBinding, user string) *rolebindingapi.RoleBinding {
+	for idx, userName := range role.UserNames {
+		if userName == user {
+			role.UserNames = append(role.UserNames[:idx], role.UserNames[idx+1:]...)
 		}
 	}
-	return false
+	for idx, subject := range role.Subjects {
+		if subject.Name == user {
+			role.Subjects = append(role.Subjects[:idx], role.Subjects[idx+1:]...)
+		}
+	}
+
+	return role
 }

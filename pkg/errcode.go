@@ -16,6 +16,7 @@ const (
 	ErrCodeNotFound           = 1404
 	ErrCodePlanNotFound       = 14040
 	ErrCodeRegionNotFound     = 14041
+	ErrCodeUserNotFound       = 14042
 	ErrCodeMethodNotAllowed   = 1405
 	ErrCodeTimeout            = 1408
 	ErrCodeConflict           = 1409
@@ -37,6 +38,7 @@ var errText = map[int]string{
 	ErrCodeNotFound:           "Not found",
 	ErrCodePlanNotFound:       "No such plan",
 	ErrCodeRegionNotFound:     "Region not exist",
+	ErrCodeUserNotFound:       "User not exist",
 	ErrCodeMethodNotAllowed:   "Method not allowed",
 	ErrCodeTimeout:            "Request timeout",
 	ErrCodeConflict:           "Already exist",
