@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/asiainfoLDP/datafoundry_payment/pkg"
+	apierrors "github.com/asiainfoLDP/datafoundry_payment/pkg/errors"
 	"github.com/asiainfoLDP/datafoundry_payment/pkg/openshift"
 	userapi "github.com/openshift/origin/pkg/user/api/v1"
 	"github.com/zonesan/clog"
@@ -133,11 +133,11 @@ func NewClient(r *http.Request, validation bool) (*openshift.OClient, error) {
 	clog.Debugf("[%v] [%v] [%v]", region, host, token)
 
 	if token == "" {
-		return nil, pkg.ErrorNew(pkg.ErrCodeUnauthorized)
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeUnauthorized)
 	}
 
 	if host == "" {
-		return nil, pkg.ErrorNew(pkg.ErrCodeRegionNotFound)
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeRegionNotFound)
 	}
 
 	user := ""
@@ -153,8 +153,12 @@ func NewClient(r *http.Request, validation bool) (*openshift.OClient, error) {
 	return client, nil
 }
 
-func NewAdminClient(r *http.Request) (*openshift.OClient, error) {
+func NewAdminClient(r *http.Request, project string) (*openshift.OClient, error) {
 	r.ParseForm()
+
+	if project == "" {
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeInvalidParam)
+	}
 
 	region := r.FormValue("region")
 	host := RegionHostname(region)
@@ -163,11 +167,11 @@ func NewAdminClient(r *http.Request) (*openshift.OClient, error) {
 	clog.Debugf("[%v] [%v] [%v]", region, host, token)
 
 	if token == "" {
-		return nil, pkg.ErrorNew(pkg.ErrCodeUnauthorized)
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeUnauthorized)
 	}
 
 	if host == "" {
-		return nil, pkg.ErrorNew(pkg.ErrCodeRegionNotFound)
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeRegionNotFound)
 	}
 
 	user, err := getDFUserame(region, token)
@@ -176,10 +180,24 @@ func NewAdminClient(r *http.Request) (*openshift.OClient, error) {
 		return nil, err
 	}
 
+	if err := func() error {
+		oc, err := NewClient(r, false)
+		if err != nil {
+			return err
+		}
+		_, err = oc.GetProject(r, project)
+
+		return err
+
+	}(); err != nil {
+		clog.Error(err)
+		return nil, err
+	}
+
 	clog.Debug(user, "is reuqesting admin permission.")
 
 	if adminClients[region] == nil || adminClients[region].BearerToken() == "" {
-		return nil, pkg.ErrorNew(pkg.ErrCodeAdminNotPresented)
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeAdminNotPresented)
 	}
 
 	client := openshift.NewAdminOClient(adminClients[region])

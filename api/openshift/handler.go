@@ -40,7 +40,7 @@ func ListMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	project := ps.ByName("project")
 
-	oc, err := NewAdminClient(r)
+	oc, err := NewAdminClient(r, project)
 
 	if err != nil {
 		clog.Error("NewAdminClient", err)

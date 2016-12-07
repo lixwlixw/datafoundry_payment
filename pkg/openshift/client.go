@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/asiainfoLDP/datafoundry_payment/pkg"
+	apierrors "github.com/asiainfoLDP/datafoundry_payment/pkg/errors"
 	projectapi "github.com/openshift/origin/pkg/project/api/v1"
 	rolebindingapi "github.com/openshift/origin/pkg/rolebinding/api/v1"
 	"github.com/zonesan/clog"
@@ -92,10 +92,25 @@ func (oc *OClient) ListRoles(r *http.Request, project string) (*rolebindingapi.R
 	return rolesResult, nil
 }
 
+func (oc *OClient) GetProject(r *http.Request, project string) (*projectapi.Project, error) {
+	uri := fmt.Sprintf("/projects/%v/", project)
+
+	proj := new(projectapi.Project)
+
+	oc.client.OGet(uri, proj)
+
+	if oc.client.Err != nil {
+		clog.Error(oc.client.Err)
+		return nil, oc.client.Err
+	}
+
+	return proj, nil
+}
+
 func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*rolebindingapi.RoleBinding, error) {
 
 	if name == "" || project == "" {
-		return nil, pkg.ErrorNew(pkg.ErrCodeInvalidParam)
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeInvalidParam)
 	}
 
 	uri := fmt.Sprintf("/namespaces/%v/rolebindings", project)
@@ -108,7 +123,7 @@ func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*
 
 	if exist := findUserInRoles(roleList, name); exist != nil {
 		clog.Warnf("duplicate user: %v, role: %v, project: %v", name, exist.RoleRef.Name, project)
-		return nil, pkg.ErrorNew(pkg.ErrCodeConflict)
+		return nil, apierrors.ErrorNew(apierrors.ErrCodeConflict)
 	}
 
 	roleRef := "edit"
@@ -149,11 +164,11 @@ func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*
 
 func (oc *OClient) RoleRemove(r *http.Request, project, name string) error {
 	if name == "" || project == "" {
-		return pkg.ErrorNew(pkg.ErrCodeInvalidParam)
+		return apierrors.ErrorNew(apierrors.ErrCodeInvalidParam)
 	}
 
 	if name == oc.user {
-		return pkg.ErrorNew(pkg.ErrCodeActionNotSupport)
+		return apierrors.ErrorNew(apierrors.ErrCodeActionNotSupport)
 	}
 
 	uri := fmt.Sprintf("/namespaces/%v/rolebindings", project)
@@ -167,7 +182,7 @@ func (oc *OClient) RoleRemove(r *http.Request, project, name string) error {
 	role := findUserInRoles(roleList, name)
 	if role == nil {
 		clog.Errorf("can't find user '%v' from roles in project '%v'", name, project)
-		return pkg.ErrorNew(pkg.ErrCodeUserNotFound)
+		return apierrors.ErrorNew(apierrors.ErrCodeUserNotFound)
 	} else {
 		role = removeUserInRole(role, name)
 		uri += "/" + role.Name

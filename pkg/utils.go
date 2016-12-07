@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	apierrors "github.com/asiainfoLDP/datafoundry_payment/pkg/errors"
 	"github.com/zonesan/clog"
 )
 
@@ -16,7 +17,7 @@ func getToken(r *http.Request) (string, error) {
 	token := r.Header.Get("Authorization")
 
 	if token == "" {
-		err := ErrorNew(ErrCodeUnauthorized)
+		err := apierrors.ErrorNew(apierrors.ErrCodeUnauthorized)
 		return "", err
 	}
 	return token, nil
