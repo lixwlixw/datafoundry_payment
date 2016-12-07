@@ -152,7 +152,7 @@ func (oc *OClient) RoleRemove(r *http.Request, project, name string) error {
 
 	role := findUserInRoles(roleList, name)
 	if role == nil {
-		clog.Errorf("can't find user '%v' in project '%v'", name, project)
+		clog.Errorf("can't find user '%v' from roles in project '%v'", name, project)
 		return pkg.ErrorNew(pkg.ErrCodeUserNotFound)
 	} else {
 		role = removeUserInRole(role, name)
