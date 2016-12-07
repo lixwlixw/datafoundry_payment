@@ -3,6 +3,7 @@ package openshift
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/asiainfoLDP/datafoundry_payment/pkg"
 	projectapi "github.com/openshift/origin/pkg/project/api/v1"
@@ -15,6 +16,10 @@ type OClient struct {
 	client *OpenshiftREST
 	user   string
 }
+
+const (
+	JoinedTimePrefix = "joinedTime/"
+)
 
 func NewOClient(host, token, username string) *OClient {
 
@@ -69,13 +74,17 @@ func (oc *OClient) ListRoles(r *http.Request, project string) (*rolebindingapi.R
 	rolesResult := new(rolebindingapi.RoleBindingList)
 
 	for _, role := range roles.Items {
-		for _, subject := range role.Subjects {
-			if subject.Kind == "User" {
-				if role.RoleRef.Name == "view" || role.RoleRef.Name == "admin" ||
-					role.RoleRef.Name == "edit" {
-					//clog.Debugf("%#v", role)
-					rolesResult.Items = append(rolesResult.Items, role)
-					break
+		if role.Name == "view" || role.Name == "admin" || role.Name == "edit" {
+			rolesResult.Items = append(rolesResult.Items, role)
+		} else {
+			for _, subject := range role.Subjects {
+				if subject.Kind == "User" {
+					if role.RoleRef.Name == "view" || role.RoleRef.Name == "admin" ||
+						role.RoleRef.Name == "edit" {
+						//clog.Debugf("%#v", role)
+						rolesResult.Items = append(rolesResult.Items, role)
+						break
+					}
 				}
 			}
 		}
@@ -123,6 +132,11 @@ func (oc *OClient) RoleAdd(r *http.Request, project, name string, admin bool) (*
 	role.Subjects = append(role.Subjects, subject)
 	role.UserNames = append(role.UserNames, name)
 
+	if role.Annotations == nil {
+		role.Annotations = make(map[string]string)
+	}
+	role.Annotations[JoinedTimePrefix+name] = time.Now().Format(time.RFC3339)
+
 	if create {
 		oc.client.OPost(uri, role, role)
 	} else {
@@ -152,7 +166,7 @@ func (oc *OClient) RoleRemove(r *http.Request, project, name string) error {
 
 	role := findUserInRoles(roleList, name)
 	if role == nil {
-		clog.Errorf("can't find user '%v' in project '%v'", name, project)
+		clog.Errorf("can't find user '%v' from roles in project '%v'", name, project)
 		return pkg.ErrorNew(pkg.ErrCodeUserNotFound)
 	} else {
 		role = removeUserInRole(role, name)
@@ -169,7 +183,7 @@ func (oc *OClient) RoleRemove(r *http.Request, project, name string) error {
 
 func findRole(roles *rolebindingapi.RoleBindingList, roleRef string) *rolebindingapi.RoleBinding {
 	for _, role := range roles.Items {
-		if role.RoleRef.Name == roleRef {
+		if role.Name == roleRef {
 			return &role
 		}
 	}
@@ -210,6 +224,8 @@ func removeUserInRole(role *rolebindingapi.RoleBinding, user string) *rolebindin
 			role.Subjects = append(role.Subjects[:idx], role.Subjects[idx+1:]...)
 		}
 	}
+
+	delete(role.Annotations, JoinedTimePrefix+user)
 
 	return role
 }
