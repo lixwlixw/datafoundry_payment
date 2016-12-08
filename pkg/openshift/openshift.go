@@ -133,7 +133,7 @@ func (oc *OpenshiftClient) updateBearerToken(durPhase time.Duration) {
 
 			oc.setBearerToken("Bearer " + token)
 
-			clog.Debugf("token[%v](%v): %v", oc.name, oc.host, token)
+			clog.Infof("[%v] [%v] [%v]", oc.name, oc.host, token)
 
 			// durPhase is to avoid mulitple OCs updating tokens at the same time
 			time.Sleep(3*time.Hour + durPhase)
