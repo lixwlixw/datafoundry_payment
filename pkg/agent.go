@@ -63,14 +63,14 @@ func InitBaseUrls() {
 		defaultDataServiceBaseURL = httpAddr(dataserviceurl)
 	}
 
-	clog.Debug("couponurl", defaultCouponBaseURL)
-	clog.Debug("marketurl", defaultMarketBaseURL)
-	clog.Debug("checkouturl", defaultCheckoutBaseURL)
-	clog.Debug("balanceurl", defaultBalanceBaseURL)
-	clog.Debug("rechargeurl", defaultRechargeBaseURL)
-	clog.Debug("amounturl", defaultAmountBaseURL)
-	clog.Debug("integrationurl", defaultIntegrationBaseURL)
-	clog.Debug("dataserviceurl", defaultDataServiceBaseURL)
+	clog.Info("couponurl", defaultCouponBaseURL)
+	clog.Info("marketurl", defaultMarketBaseURL)
+	clog.Info("checkouturl", defaultCheckoutBaseURL)
+	clog.Info("balanceurl", defaultBalanceBaseURL)
+	clog.Info("rechargeurl", defaultRechargeBaseURL)
+	clog.Info("amounturl", defaultAmountBaseURL)
+	clog.Info("integrationurl", defaultIntegrationBaseURL)
+	clog.Info("dataserviceurl", defaultDataServiceBaseURL)
 
 }
 
