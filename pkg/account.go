@@ -9,11 +9,11 @@ import (
 type AccountAgent service
 
 type Account struct {
-	Purchased bool    `json:"purchased"`
-	Notify    bool    `json:"notification"`
-	Plans     []Plan  `json:"subscriptions,omitempty"`
-	Status    string  `json:"status"`
-	Balance   Balance `json:"balance"`
+	Purchased bool     `json:"purchased"`
+	Notify    bool     `json:"notification"`
+	Plans     []Plan   `json:"subscriptions,omitempty"`
+	Status    string   `json:"status"`
+	Balance   *Balance `json:"balance"`
 }
 
 func (agent *AccountAgent) Get(r *http.Request) (*Account, error) {
@@ -76,6 +76,18 @@ func (agent *AccountAgent) Get(r *http.Request) (*Account, error) {
 		}
 
 	}
+
+	c := make(chan bool)
+
+	go func() {
+		if account.Balance, err = agent.Balance.Get(r); err != nil {
+			clog.Error(err)
+		}
+
+		c <- true
+	}()
+
+	<-c
 
 	//account := fakeAccount(r)
 	return account, nil
