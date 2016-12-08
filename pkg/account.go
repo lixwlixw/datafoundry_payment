@@ -40,7 +40,7 @@ func (agent *AccountAgent) Get(r *http.Request) (*Account, error) {
 		close(c)
 	}()
 
-	plans := new(Market)
+	var plans *Market
 	c1 := make(chan bool)
 
 	go func() {
@@ -59,8 +59,9 @@ func (agent *AccountAgent) Get(r *http.Request) (*Account, error) {
 		if len(*orders) > 0 {
 			account.Purchased = true
 
+			<-c1
+
 			if plans != nil {
-				<-c1
 				func() {
 					for _, order := range *orders {
 						found := false
