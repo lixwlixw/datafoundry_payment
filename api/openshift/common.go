@@ -38,7 +38,7 @@ func init_regions() {
 		clog.Fatal("env 'APISERVER_CN_NORTH_01' and 'APISERVER_CN_NORTH_02' must be specified.")
 	}
 
-	clog.Debugf("%#v", regions)
+	clog.Infof("%#v", regions)
 
 }
 
@@ -53,7 +53,7 @@ func init_authinfo() (user, pass string) {
 		clog.Fatal("env 'DATAFOUNDRY_ADMIN_USER' and 'DATAFOUNDRY_ADMIN_PASS' must be specified.")
 	}
 
-	clog.Debugf("%#v", auth)
+	clog.Infof("%#v", auth)
 	return auth["user"], auth["pass"]
 }
 

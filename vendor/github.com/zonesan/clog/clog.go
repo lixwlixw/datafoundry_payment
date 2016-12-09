@@ -142,7 +142,7 @@ func Info(a ...interface{}) (s string) {
 	checkLogEnv()
 	if logLevel >= LOG_LEVEL_INFO {
 		//log.Print(KGRN+"[INFO] "+KNRM+tracef(), fmt.Sprintln(a...))
-		s = fmt.Sprint(KGRN + "[INFO] " + KNRM + tracef() + fmt.Sprintln(a...))
+		s = fmt.Sprint(KGRN + "[ INFO] " + KNRM + tracef() + fmt.Sprintln(a...))
 		log.Print(s)
 	}
 	return
@@ -151,7 +151,7 @@ func Info(a ...interface{}) (s string) {
 func Infof(format string, a ...interface{}) (s string) {
 	checkLogEnv()
 	if logLevel >= LOG_LEVEL_INFO {
-		s = KGRN + "[INFO] " + KNRM + tracef() + fmt.Sprintf(format, a...)
+		s = KGRN + "[ INFO] " + KNRM + tracef() + fmt.Sprintf(format, a...)
 		log.Print(s)
 	}
 	return
@@ -196,7 +196,7 @@ func Debugf(format string, a ...interface{}) (s string) {
 func Warn(a ...interface{}) (s string) {
 	checkLogEnv()
 	if logLevel >= LOG_LEVEL_WARN {
-		s = KYEL + "[WARNING] " + KNRM + tracef() + fmt.Sprintln(a...)
+		s = KYEL + "[ WARN] " + KNRM + tracef() + fmt.Sprintln(a...)
 		log.Print(s)
 	}
 	return
@@ -205,7 +205,7 @@ func Warn(a ...interface{}) (s string) {
 func Warnf(format string, a ...interface{}) (s string) {
 	checkLogEnv()
 	if logLevel >= LOG_LEVEL_WARN {
-		s = KYEL + "[WARNING] " + KNRM + tracef() + fmt.Sprintf(format, a...)
+		s = KYEL + "[ WARN] " + KNRM + tracef() + fmt.Sprintf(format, a...)
 		log.Print(s)
 	}
 	return

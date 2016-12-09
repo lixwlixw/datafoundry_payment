@@ -110,6 +110,7 @@ func (agent *MarketAgent) ListPlan(r *http.Request) (*Market, error) {
 		clog.Error(err)
 		return nil, err
 	} else {
+		clog.Debug(len(plans), "plans listed.")
 		for _, apiplan := range plans {
 			plan := convertPlan(&apiplan)
 			market.Plans = append(market.Plans, *plan)

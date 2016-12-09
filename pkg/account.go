@@ -9,11 +9,11 @@ import (
 type AccountAgent service
 
 type Account struct {
-	Purchased bool    `json:"purchased"`
-	Notify    bool    `json:"notification"`
-	Plans     []Plan  `json:"subscriptions,omitempty"`
-	Status    string  `json:"status"`
-	Balance   Balance `json:"balance"`
+	Purchased bool     `json:"purchased"`
+	Notify    bool     `json:"notification"`
+	Plans     []Plan   `json:"subscriptions,omitempty"`
+	Status    string   `json:"status"`
+	Balance   *Balance `json:"balance"`
 }
 
 func (agent *AccountAgent) Get(r *http.Request) (*Account, error) {
@@ -31,6 +31,25 @@ func (agent *AccountAgent) Get(r *http.Request) (*Account, error) {
 
 	account := new(Account)
 
+	c := make(chan bool)
+
+	go func() {
+		if account.Balance, err = agent.Balance.Get(r); err != nil {
+			clog.Error(err)
+		}
+		close(c)
+	}()
+
+	var plans *Market
+	c1 := make(chan bool)
+
+	go func() {
+		if plans, err = agent.Market.ListPlan(r); err != nil {
+			clog.Error(err)
+		}
+		close(c1)
+	}()
+
 	if orders, err := agent.Checkout.ListOrders(r); err != nil {
 		clog.Error(err)
 		return nil, err
@@ -40,9 +59,9 @@ func (agent *AccountAgent) Get(r *http.Request) (*Account, error) {
 		if len(*orders) > 0 {
 			account.Purchased = true
 
-			if plans, err := agent.Market.ListPlan(r); err != nil {
-				clog.Error(err)
-			} else {
+			<-c1
+
+			if plans != nil {
 				func() {
 					for _, order := range *orders {
 						found := false
@@ -62,20 +81,10 @@ func (agent *AccountAgent) Get(r *http.Request) (*Account, error) {
 				}()
 			}
 
-			// for _, order := range *orders {
-			// 	if plan, err := agent.Market.Get(r, order.Plan_id); err != nil {
-			// 		clog.Error(err)
-			// 	} else {
-			// 		if plan.PlanId != "" {
-			// 			account.Plans = append(account.Plans, *plan)
-			// 		} else {
-			// 			clog.Warn("empty plan id ...", plan)
-			// 		}
-			// 	}
-			// }
 		}
-
 	}
+
+	<-c
 
 	//account := fakeAccount(r)
 	return account, nil
