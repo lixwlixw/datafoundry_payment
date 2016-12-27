@@ -22,6 +22,22 @@ type Recharge struct {
 
 type HongPay apiRechargePayload
 
+func (agent *RechargeAgent) AdminRecharge(r *http.Request, param *RequestParams) (*Balance, error) {
+
+	urlStr := "/charge/v1/couponrecharge"
+
+	balance := new(Balance)
+
+	if err := doRequest(agent, r, "POST", urlStr, param, balance); err != nil {
+		clog.Error(err)
+
+		return nil, err
+	}
+	clog.Debug(balance)
+	return balance, nil
+
+}
+
 func (agent *RechargeAgent) Create(r *http.Request, recharge *Recharge) (*HongPay, error) {
 
 	urlStr := "/charge/v1/recharge"

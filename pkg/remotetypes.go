@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 )
 
+type RequestParams map[string]interface{}
+
 type RemoteResponse struct {
 	Code    uint            `json:"code"`
 	Message string          `json:"msg"`
@@ -96,6 +98,7 @@ type apiRegion struct {
 
 type apiCoupon struct {
 	SerialNumber string  `json:"serial,omitempty"`
+	Code         string  `json:"code,omitempty"`
 	Amount       float64 `json:"amount,omitempty"`
 	ExpireOn     string  `json:"expire_on,omitempty"`
 	Status       string  `json:"status,omitempty"`
