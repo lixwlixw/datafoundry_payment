@@ -23,10 +23,6 @@ type Redeem struct {
 	Region    string `json:"region"`
 }
 
-type CliCoupon struct {
-	ExipreOn int `json:"exipre_on"`
-}
-
 func (agent *CouponAgent) Get(r *http.Request, code string) (*Coupon, error) {
 
 	urlStr := fmt.Sprintf("/charge/v1/coupons/%v", code)
