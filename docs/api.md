@@ -147,6 +147,7 @@ GET /payment/v1/coupon/:couponcode
   "status": "available"
 }
 ```
+
 POST /payment/v1/redeem -d  '{"serial":"xxeefd","code":"ssa","namespace":"chaizs","region":"cn-north-1"}'
 
 ```json
@@ -255,6 +256,29 @@ POST /integration/v1/instance/:instance_id
   "name": "database",
   "username": "username",
   "password": "password"
+}
+```
+
+
+POST /payment/v1/coupon?region=cn-north-1  -d '{"amount":100,"expire_on":30,"kind":"recharge"}'
+
+```json
+{
+  "serial": "DF075754236988704R",
+  "code": "WLLK720DVPYVUD3B",
+  "amount": 100,
+  "expire_on": "2017-01-26"
+}
+```
+
+POST /payment/v1/directrecharge?region=cn-north-2 -d '{"namespace":"xxx","amount":1000,"reason":" byadmin"}'
+
+```json
+{
+  "namespace": "xxx",
+  "create_at": "",
+  "update_at": "",
+  "balance": 5207.5
 }
 ```
 

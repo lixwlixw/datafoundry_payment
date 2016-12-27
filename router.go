@@ -25,7 +25,8 @@ func createRouter() *httprouter.Router {
 
 	router.GET("/", api.Index)
 
-	router.POST(PAYMENT_API_PREFIX+"/recharge", recharge.Recharge)
+	router.POST(PAYMENT_API_PREFIX+"/recharge", recharge.AiPayRecharge)
+	router.POST(PAYMENT_API_PREFIX+"/directrecharge", recharge.DirectRecharge) //admin permission
 	router.POST(PAYMENT_API_PREFIX+"/checkout", checkout.Checkout)
 	router.GET(PAYMENT_API_PREFIX+"/balance", balance.Balance)
 	router.GET(PAYMENT_API_PREFIX+"/market", market.Market)
@@ -33,6 +34,7 @@ func createRouter() *httprouter.Router {
 	router.GET(PAYMENT_API_PREFIX+"/amounts/:tid", amount.Amount)
 	router.GET(PAYMENT_API_PREFIX+"/account", account.Account)
 	router.GET(PAYMENT_API_PREFIX+"/coupon/:serial", coupon.Coupon)
+	router.POST(PAYMENT_API_PREFIX+"/coupon", coupon.CreateCoupon) //admin permission
 	router.POST(PAYMENT_API_PREFIX+"/redeem", coupon.Redeem)
 	router.GET(PAYMENT_API_PREFIX+"/orders", checkout.Order)
 	router.DELETE(PAYMENT_API_PREFIX+"/orders/:orderid", checkout.Unsubscribe)
