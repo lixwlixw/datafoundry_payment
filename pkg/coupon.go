@@ -37,6 +37,20 @@ func (agent *CouponAgent) Get(r *http.Request, code string) (*Coupon, error) {
 	return coupon, nil
 }
 
+func (agent *CouponAgent) AdminCreate(r *http.Request, param *RequestParams) (*Coupon, error) {
+
+	urlStr := "/charge/v1/coupons"
+
+	coupon := new(Coupon)
+	if err := doRequest(agent, r, "POST", urlStr, param, coupon); err != nil {
+		clog.Error(err)
+		return nil, err
+	}
+	clog.Debug(coupon)
+	coupon.Region = ""
+	return coupon, nil
+}
+
 func (agent *CouponAgent) Redeem(r *http.Request, redeem *Redeem) (*Coupon, error) {
 	if redeem.Serial == "" || redeem.Code == "" {
 		return nil, apierrors.ErrorNew(apierrors.ErrCodeBadRequest)

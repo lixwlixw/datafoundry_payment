@@ -27,6 +27,30 @@ func Coupon(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	return
 }
 
+func CreateCoupon(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	clog.Info("from", r.RemoteAddr, r.Method, r.URL.RequestURI(), r.Proto)
+
+	param := new(pkg.RequestParams)
+
+	if err := api.ParseRequestBody(r, param); err != nil {
+		clog.Error("read request body error.", err)
+		api.RespError(w, err)
+		return
+	}
+
+	agent := api.Agent()
+	result, err := agent.Coupon.AdminCreate(r, param)
+
+	if err != nil {
+		api.RespError(w, err)
+	} else {
+		api.RespOK(w, result)
+	}
+
+	return
+}
+
 func Redeem(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	clog.Info("from", r.RemoteAddr, r.Method, r.URL.RequestURI(), r.Proto)
 
