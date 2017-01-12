@@ -169,7 +169,7 @@ func convertPlan(apiplan *apiPlan) *Plan {
 	plan.Region = apiplan.RegionDesc
 	plan.Desc = apiplan.Spec1
 	plan.Desc2 = apiplan.Spec2
-	plan.Detail = apiPlan.Description
+	plan.Detail = apiplan.Description
 	plan.CreationTime = apiplan.CreateTime
 
 	return plan
