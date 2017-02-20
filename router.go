@@ -26,6 +26,7 @@ func createRouter() *httprouter.Router {
 	router.GET("/", api.Index)
 
 	router.POST(PAYMENT_API_PREFIX+"/recharge", recharge.AiPayRecharge)
+	router.POST(PAYMENT_API_PREFIX+"/recharge/weixin", recharge.WxRecharge)
 	router.POST(PAYMENT_API_PREFIX+"/directrecharge", recharge.DirectRecharge) //admin permission
 	router.POST(PAYMENT_API_PREFIX+"/checkout", checkout.Checkout)
 	router.GET(PAYMENT_API_PREFIX+"/balance", balance.Balance)

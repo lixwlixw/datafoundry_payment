@@ -81,10 +81,15 @@ type apiTransaction struct {
 }
 
 type apiRechargePayload struct {
-	AiPayUrl string    `json:"aiurl"`
+	//aihongpay
+	AiPayUrl string    `json:"aiurl,omitempty"`
 	Method   string    `json:"method,omitempty"`
 	Payloads []Payload `json:"payloads,omitempty"`
 	Packet   string    `json:"requestpacket,omitempty"`
+	// //weixin pay
+	// TradeId   string `json:"out_trade_no,omitempty"`
+	// QRDataUrl string `json:"code_url,omitempty"`
+	// TradeType string `json:"trade_type,omitempty"`
 }
 
 type Payload struct {
@@ -137,3 +142,5 @@ type apiDataItemAttr struct {
 }
 
 type UndefinedResp map[string]interface{}
+
+type GenerateResp map[string]interface{}
