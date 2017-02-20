@@ -47,6 +47,20 @@ func WxRecharge(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
+func WxGetRechargeStat(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	clog.Info("from", r.RemoteAddr, r.Method, r.URL.RequestURI(), r.Proto)
+
+	tid := ps.ByName("tid")
+
+	agent := api.Agent()
+
+	if result, err := agent.Weixin.GetStat(r, tid); err != nil {
+		api.RespError(w, err)
+	} else {
+		api.RespOK(w, result)
+	}
+}
+
 func DirectRecharge(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	clog.Info("from", r.RemoteAddr, r.Method, r.URL.RequestURI(), r.Proto)
 

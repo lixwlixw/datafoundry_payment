@@ -143,4 +143,4 @@ type apiDataItemAttr struct {
 
 type UndefinedResp map[string]interface{}
 
-type GenerateResp map[string]interface{}
+type Resp map[string]interface{}
