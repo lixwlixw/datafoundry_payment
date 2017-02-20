@@ -111,3 +111,36 @@ func (agent *RechargeAgent) Url() *url.URL {
 func (agent *RechargeAgent) Instance() *Agent {
 	return agent.Agent
 }
+
+//weixin
+
+type WeixinAgent struct {
+	*Agent
+	BaseURL *url.URL
+}
+
+func (agent *WeixinAgent) CreateWx(r *http.Request, recharge *Recharge) (*GenerateResp, error) {
+
+	urlStr := "/charge/v1/wechat/recharge"
+
+	resp := new(GenerateResp)
+
+	if err := doRequest(agent, r, "POST", urlStr, recharge, resp); err != nil {
+		clog.Error(err)
+
+		return nil, err
+	}
+	clog.Debug(resp)
+	return resp, nil
+
+}
+
+func (agent *WeixinAgent) Url() *url.URL {
+	u := new(url.URL)
+	u, _ = url.Parse(agent.BaseURL.String())
+	return u
+}
+
+func (agent *WeixinAgent) Instance() *Agent {
+	return agent.Agent
+}

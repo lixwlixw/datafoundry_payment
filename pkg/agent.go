@@ -28,6 +28,7 @@ var (
 	defaultAmountBaseURL      = defaultBalanceBaseURL
 	defaultIntegrationBaseURL = "https://datafoundry.integration.app.dataos.io"
 	defaultDataServiceBaseURL = "https://datafoundry.datainstance.app.dataos.io"
+	defaultWeixinBaseURL      = "https://datafoundry.wechat.app.dataos.io"
 )
 
 func InitBaseUrls() {
@@ -63,6 +64,11 @@ func InitBaseUrls() {
 		defaultDataServiceBaseURL = httpAddr(dataserviceurl)
 	}
 
+	weixinurl := combainHostPort("ENV_WEIXIN_HOST", "ENV_WEIXIN_PORT")
+	if len(weixinurl) > 0 {
+		defaultWeixinBaseURL = httpAddr(weixinurl)
+	}
+
 	clog.Info("couponurl", defaultCouponBaseURL)
 	clog.Info("marketurl", defaultMarketBaseURL)
 	clog.Info("checkouturl", defaultCheckoutBaseURL)
@@ -71,6 +77,7 @@ func InitBaseUrls() {
 	clog.Info("amounturl", defaultAmountBaseURL)
 	clog.Info("integrationurl", defaultIntegrationBaseURL)
 	clog.Info("dataserviceurl", defaultDataServiceBaseURL)
+	clog.Info("weixinurl", defaultWeixinBaseURL)
 
 }
 
@@ -105,6 +112,7 @@ type Agent struct {
 	Coupon      *CouponAgent
 	Integration *IntegrationAgent
 	DataService *DataServiceAgent
+	Weixin      *WeixinAgent
 }
 
 type service struct {
@@ -134,6 +142,7 @@ func NewAgent(httpClient *http.Client) *Agent {
 	amountBaseURL, _ := url.Parse(defaultAmountBaseURL)
 	integrationBaseURL, _ := url.Parse(defaultIntegrationBaseURL)
 	dataServiceBaseURL, _ := url.Parse(defaultDataServiceBaseURL)
+	weixinBaseURL, _ := url.Parse(defaultWeixinBaseURL)
 
 	service := &service{agent}
 
@@ -147,6 +156,7 @@ func NewAgent(httpClient *http.Client) *Agent {
 	agent.Recharge = &RechargeAgent{Agent: agent.common.Agent, BaseURL: rechargeBaseURL}
 	agent.Integration = &IntegrationAgent{Agent: agent.common.Agent, BaseURL: integrationBaseURL}
 	agent.DataService = &DataServiceAgent{Agent: agent.common.Agent, BaseURL: dataServiceBaseURL}
+	agent.Weixin = &WeixinAgent{Agent: agent.common.Agent, BaseURL: weixinBaseURL}
 
 	return agent
 }
