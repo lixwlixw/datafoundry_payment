@@ -20,7 +20,7 @@ GET /payment/v1/account?namespace=hello-org&region=cn-north-1
 }
 ```
 
-GET /payment/v1/market?region=aws&type=c
+GET /payment/v1/market?region=cn-north-1&type=c
 
 ```json
 {

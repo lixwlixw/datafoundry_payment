@@ -25,19 +25,20 @@ type QueryListResult struct {
 
 type apiPlan struct {
 	id          int
-	PlanId      string  `json:"plan_id,omitempty"`
-	Name        string  `json:"plan_name,omitempty"`
-	PlanType    string  `json:"plan_type,omitempty"`
-	Level       int     `json:"plan_level,omitempty"`
-	Spec1       string  `json:"specification1,omitempty"`
-	Spec2       string  `json:"specification2,omitempty"`
-	Description string  `json:"description,omitempty"`
-	Price       float32 `json:"price,omitempty"`
-	Cycle       string  `json:"cycle,omitempty"`
-	Region      string  `json:"region,omitempty"`
-	RegionDesc  string  `json:"region_describe,omitempty"`
-	CreateTime  string  `json:"creation_time,omitempty"`
-	Status      string  `json:"status,omitempty"`
+	PlanId      string                 `json:"plan_id,omitempty"`
+	Name        string                 `json:"plan_name,omitempty"`
+	PlanType    string                 `json:"plan_type,omitempty"`
+	Level       int                    `json:"plan_level,omitempty"`
+	Spec1       string                 `json:"specification1,omitempty"`
+	Spec2       string                 `json:"specification2,omitempty"`
+	Description string                 `json:"description,omitempty"`
+	Price       float32                `json:"price,omitempty"`
+	Cycle       string                 `json:"cycle,omitempty"`
+	Region      string                 `json:"region,omitempty"`
+	RegionDesc  string                 `json:"region_describe,omitempty"`
+	CreateTime  string                 `json:"creation_time,omitempty"`
+	Status      string                 `json:"status,omitempty"`
+	Customize   map[string]interface{} `json:"customize,omitempty"`
 }
 
 type apiPurchaseOrder struct {
