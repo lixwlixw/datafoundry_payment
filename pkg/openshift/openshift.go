@@ -219,6 +219,7 @@ func (oc *OpenshiftClient) request(method string, url string, body []byte, timeo
 	req.Header.Set("Authorization", token)
 
 	transCfg := &http.Transport{
+		DisableKeepAlives: true,
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{

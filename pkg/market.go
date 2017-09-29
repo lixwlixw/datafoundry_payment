@@ -16,18 +16,19 @@ type MarketAgent struct {
 }
 
 type Plan struct {
-	PlanId       string  `json:"plan_id"`
-	Name         string  `json:"plan_name"`
-	Level        int     `json:"plan_level"`
-	Type         string  `json:"type"`
-	Price        float32 `json:"price"`
-	BillPeriod   string  `json:"bill_period"`
-	Desc         string  `json:"description"`
-	Desc2        string  `json:"description2,omitempty"`
-	Detail       string  `json:"detail,omitempty"`
-	Region       string  `json:"region,omitempty"`
-	RegionID     string  `json:"region_id,omitempty"`
-	CreationTime string  `json:"creation_time,omitempty"`
+	PlanId       string                 `json:"plan_id"`
+	Name         string                 `json:"plan_name"`
+	Level        int                    `json:"plan_level"`
+	Type         string                 `json:"type"`
+	Price        float32                `json:"price"`
+	BillPeriod   string                 `json:"bill_period"`
+	Desc         string                 `json:"description"`
+	Desc2        string                 `json:"description2,omitempty"`
+	Detail       string                 `json:"detail,omitempty"`
+	Region       string                 `json:"region,omitempty"`
+	RegionID     string                 `json:"region_id,omitempty"`
+	CreationTime string                 `json:"creation_time,omitempty"`
+	Customize    map[string]interface{} `json:"customize,omitempty"`
 }
 
 type Market struct {
@@ -171,6 +172,7 @@ func convertPlan(apiplan *apiPlan) *Plan {
 	plan.Desc2 = apiplan.Spec2
 	plan.Detail = apiplan.Description
 	plan.CreationTime = apiplan.CreateTime
+	plan.Customize = apiplan.Customize
 
 	return plan
 

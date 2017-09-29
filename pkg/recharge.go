@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -109,5 +110,50 @@ func (agent *RechargeAgent) Url() *url.URL {
 }
 
 func (agent *RechargeAgent) Instance() *Agent {
+	return agent.Agent
+}
+
+//weixin
+
+type WeixinAgent struct {
+	*Agent
+	BaseURL *url.URL
+}
+
+func (agent *WeixinAgent) CreateWx(r *http.Request, recharge *Recharge) (*Resp, error) {
+
+	urlStr := "/charge/v1/wechat/recharge"
+
+	resp := new(Resp)
+
+	if err := doRequest(agent, r, "POST", urlStr, recharge, resp); err != nil {
+		clog.Error(err)
+
+		return nil, err
+	}
+	clog.Debug(resp)
+	return resp, nil
+
+}
+
+func (agent *WeixinAgent) GetStat(r *http.Request, tid string) (*Resp, error) {
+	urlStr := fmt.Sprintf("/charge/v1/wechat/order/%v", tid)
+
+	resp := new(Resp)
+	if err := doRequest(agent, r, "GET", urlStr, nil, resp); err != nil {
+		clog.Error(err)
+		return nil, err
+	}
+	clog.Debug(resp)
+	return resp, nil
+}
+
+func (agent *WeixinAgent) Url() *url.URL {
+	u := new(url.URL)
+	u, _ = url.Parse(agent.BaseURL.String())
+	return u
+}
+
+func (agent *WeixinAgent) Instance() *Agent {
 	return agent.Agent
 }
